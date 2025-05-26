@@ -1,78 +1,54 @@
-# OCPP 메시지 검증 시스템
+# OCPP 이상 탐지 시스템
 
-OCPP(Open Charge Point Protocol) 메시지의 이상 탐지 및 검증을 위한 하이브리드 시스템입니다.
-
-## 프로젝트 구조
-
-```
-/
-├── src/                    # 소스 코드
-│   ├── models/            # 모델 코드
-│   │   ├── __init__.py
-│   │   ├── encoder.py     # OCPP 메시지 인코더
-│   │   ├── autoencoder.py # LSTM-Autoencoder 모델
-│   │   └── detector.py    # 이상 탐지 시스템
-│   ├── utils/             # 유틸리티 함수
-│   │   ├── __init__.py
-│   │   └── data_processor.py
-│   ├── config/            # 설정 파일
-│   │   ├── __init__.py
-│   │   └── model_config.py
-│   └── tests/             # 테스트 코드
-│       ├── __init__.py
-│       └── test_detector.py
-├── saved_models/          # 학습된 모델 저장
-├── docs/                  # 문서
-│   └── validation_rules.md
-└── README.md
-```
+이 프로젝트는 OCPP(Open Charge Point Protocol) 메시지를 실시간으로 모니터링하고 이상을 탐지하는 시스템입니다.
 
 ## 주요 기능
 
-1. **하이브리드 검증 시스템**
-   - 규칙 기반 검증
-   - AI 기반 패턴 검증 (LSTM-Autoencoder)
-   - SHAP 기반 설명 가능성
+### 1. 자동 데이터 수집 및 학습
+- OCPP 메시지를 자동으로 수집하고 학습
+- Open Charge Alliance, GitHub 등에서 OCPP 메시지 패턴 수집
+- 수집된 데이터를 자동으로 학습에 반영
 
-2. **메시지 구조 검증**
-   - 필수 필드 검증
-   - 필드 타입 및 범위 검증
-   - 시퀀스 검증
+### 2. 실시간 이상 탐지
+- 충전기 상태 변화를 실시간으로 모니터링
+- 이상 패턴 자동 감지 및 알림
+- 학습된 모델을 통한 정확한 이상 탐지
 
-3. **AI 기반 패턴 검증**
-   - LSTM-Autoencoder를 통한 시계열 패턴 학습
-   - 재구성 오차 기반 이상 탐지
-   - SHAP를 통한 이상 원인 분석
+### 3. 지속적 학습 시스템
+- 새로운 데이터를 자동으로 학습에 반영
+- 모델 성능 자동 개선
+- 실시간 데이터 처리 및 분석
 
-## 설치 방법
+## 시스템 구성
 
-1. Python 3.8 이상 설치
-2. 필요한 패키지 설치:
-   ```bash
-   pip install torch numpy shap
-   ```
+- `src/utils/ocpp_data_collector.py`: OCPP 메시지 자동 수집기
+- `src/utils/db_connector.py`: 데이터베이스 연결 및 관리
+- `src/utils/data_processor.py`: 데이터 전처리 및 정규화
+- `src/models/detector.py`: 이상 탐지 모델
+- `src/online_learning_system.py`: 온라인 학습 시스템
 
-## 사용 방법
+## 설치 및 실행
 
-1. 모델 학습:
-   ```python
-   from src.models.detector import OCPPAnomalyDetectionSystem
-   
-   detector = OCPPAnomalyDetectionSystem()
-   detector.train(normal_sequences)
-   ```
+1. 필요한 패키지 설치:
+```bash
+pip install -r requirements.txt
+```
 
-2. 이상 탐지:
-   ```python
-   result = detector.detect_anomaly(sequence)
-   if result['is_anomaly']:
-       print(f"이상 탐지: {result['explanation']}")
-   ```
+2. 데이터베이스 설정:
+- MSSQL 서버 설정
+- 데이터베이스 연결 정보 설정
 
-## 검증 규칙
+3. 시스템 실행:
+```bash
+# 데이터 수집기 실행
+python -m src.utils.ocpp_data_collector
 
-자세한 검증 규칙은 [validation_rules.md](docs/validation_rules.md) 문서를 참조하세요.
+# 온라인 학습 시스템 실행
+python -m src.online_learning_system
+```
 
-## 라이선스
+## 로그 확인
 
-MIT License 
+- 데이터 수집 로그: `logs/ocpp_collector.log`
+- 학습 시스템 로그: `logs/online_learning.log`
+- 이상 탐지 로그: `logs/anomaly_detection.log` 
